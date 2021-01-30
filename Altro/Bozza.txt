@@ -1,0 +1,99 @@
+row(0..4).
+column(0..4).
+color(rosso).
+color(blu).
+color(verde).
+color(bianco).
+color(grigio).
+type(bomba).
+type(scrigno).
+type(vuoto).
+type(orizzontale).
+type(verticale).
+type(bidirezionale).
+type(tempo).
+
+timer(10).
+
+cell(0,0,rosso,vuoto).
+cell(0,1,verde,vuoto).
+cell(0,2,rosso,vuoto).
+cell(0,3,grigio,vuoto).
+cell(0,4,grigio,vuoto).
+cell(1,0,blu,vuoto).
+cell(1,1,blu,vuoto).
+cell(1,2,blu,vuoto).
+cell(1,3,verde,vuoto).
+cell(1,4,grigio,vuoto).
+cell(2,0,verde,vuoto).
+cell(2,1,verde,vuoto).
+cell(2,2,blu,vuoto).
+cell(2,3,rosso,vuoto).
+cell(2,4,grigio,tempo).
+cell(3,0,verde,vuoto).
+cell(3,1,rosso,vuoto).
+cell(3,2,blu,vuoto).
+cell(3,3,blu,vuoto).
+cell(3,4,blu,vuoto).
+cell(4,0,verde,vuoto).
+cell(4,1,verde,vuoto).
+cell(4,2,blu,vuoto).
+cell(4,3,verde,vuoto).
+cell(4,4,rosso,vuoto).
+
+select(R,C)|unselect(R,C):-cell(R,C,_,_).
+%:-#count{R,C:select(R,C)}>1.
+:-#count{R,C:select(R,C)}!=1.
+
+numCellCol(C,N):-column(C), #count{R:cell(R,C,G,V)}=J, #count{R:cell(R,C,grigio,vuoto)}=K, N=J-K.
+maxCellCol(M):-#max{N:numCellCol(_,N)}=M.
+
+adiacenti(R,C,R,C1):-cell(R,C,CO,_), cell(R,C1,CO,_), CO!=grigio, X=C-C1, &abs(X;Y), Y=1,C!=C1.
+adiacenti(R,C,R1,C):-cell(R,C,CO,_), cell(R1,C,CO,_), CO!=grigio, X=R-R1, &abs(X;Y), Y=1, R!=R1.
+adiacenti(R,C,R2,C2):-adiacenti(R,C,R1,C1),adiacenti(R1,C1,R2,C2).
+numAdiacenti(R,C,X):-#count{R1,C1:adiacenti(R,C,R1,C1)}=X, row(R), column(C).
+
+posBombaGrigia(X,Y):-cell(X,Y,grigio,bomba).
+
+adBomba(X,Y,X,Y1):-posBombaGrigia(X,Y), cell(X,Y1,G,_), K=Y-Y1, &abs(K;J), J<3, Y!=Y1, G!=grigio.
+adBomba(X,Y,X1,Y):-posBombaGrigia(X,Y), cell(X1,Y,G,_), K=X-X1, &abs(K;J), J<3, X!=X1, G!=grigio.
+adBomba(X,Y,X1,Y1):-posBombaGrigia(X,Y), cell(X1,Y1,G,_), J=X1-X, J1=Y1-Y, &abs(J;V), V=1,  &abs(J1;V1), V1=1,G!=grigio.
+
+numAdiacenti(R,C,N):-posBombaGrigia(R,C), #count{X,Y:adBomba(R,C,X,Y), cell(X,Y,_,_)}=N.
+
+posBombaCol(R,C):-cell(R,C,G,bomba), G!=grigio.
+adBomba(R,C,R1,C1):-posBombaCol(R,C), cell(R,C,COL,_), cell(R1,C1,COL,_), R!=R1.
+adBomba(R,C,R1,C1):-posBombaCol(R,C), cell(R,C,COL,_), cell(R1,C1,COL,_), C!=C1.
+numAdiacenti(R,C,N):-posBombaCol(R,C), #count{R1,C1:adBomba(R,C,R1,C1),cell(R1,C1,_,T),T=vuoto}=N.
+
+posOriz(R,C):-cell(R,C,_,orizzontale).
+adOrizzontale(R,C,R,C1):-posOriz(R,C), cell(R,C1,_,_), C1!=C.
+numAdiacenti(R,C,N):-posOriz(R,C), #count{C1:adOrizzontale(R,C,R,C1), cell(R,C1,_,T),T=vuoto}=N.
+
+posVert(R,C):-cell(R,C,_,verticale).
+adVerticale(R,C,R1,C):-posVert(R,C), cell(R1,C,_,_), R1!=R.
+numAdiacenti(R,C,N):-posVert(R,C), #count{R1:adVerticale(R,C,R1,C), cell(R1,C,_,T),T=vuoto}=N.
+
+posBid(R,C):-cell(R,C,_,bidirezionale).
+adBidirezionale(R,C,R,C1):-posBid(R,C), cell(R,C1,_,_), C1!=C.
+adBidirezionale(R,C,R1,C):-posBid(R,C), cell(R1,C,_,_), R1!=R.
+numAdiacenti(R,C,N):-posBid(R,C), #count{C1,R1:adBidirezionale(R,C,R1,C1),cell(R1,C1,_,T),T=vuoto}=N.
+
+maxAd(M):-#max{N:numAdiacenti(_,_,N)}=M.
+maxAd(M):-#max{N:numAdSpec(_,_,N)}=M.
+maxTot(M):-#max{N:maxAd(N)}=M.
+
+posSpeciali(R,C):-cell(R,C,grigio,tempo).
+posSpeciali(R,C):-cell(R,C,grigio,scrigno).
+
+numAdSpec(R,C,N):-numAdiacenti(R,C,M), posSpeciali(R,C1), cell(R,C,G,_),G!=grigio, X=C-C1, &abs(X;Y), Y=1,C!=C1, N=M+1,M>2.
+numAdSpec(R,C,N):-numAdiacenti(R,C,M), posSpeciali(R1,C),cell(R,C,G,_),G!=grigio, X=R-R1, &abs(X;Y), Y=1,R!=R1, N=M+1,M>2.
+
+
+:~unselect(R,C), numAdiacenti(R,C,N), maxAd(N). [N@1,R,C]
+
+:~#count{R,C:unselect(R,C), numCellCol(C,N), maxCellCol(N)}=K. [K@2]
+
+:~unselect(R,C), cell(R,C,grigio,tempo), timer(T), T<15. [1@3]
+
+:~select(R,C), cell(R,C,grigio,scrigno). [1@4]
