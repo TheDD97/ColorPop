@@ -31,9 +31,14 @@ public class LogicProgram {
         }
     }
 
-    public void addFacts(Table t) {
+    public void addFacts(Table t,Timer ti) {
         facts = new ASPInputProgram();
         facts.addFilesPath(encodingResource);
+        try {
+            facts.addObjectInput(ti);
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
         SymbolicConstant color;
         SymbolicConstant type;
         for (int i = 0; i < 10; i++) {
