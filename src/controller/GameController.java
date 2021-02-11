@@ -31,16 +31,11 @@ public class GameController {
     private Timer timer;
     private Alert pauseAlert;
     private Alert startAlert;
-    private boolean start = false;
     private boolean timeIsOut = false;
-    private Integer r;
-    private Integer c;
     private Thread t;
     private boolean pause = false;
     private InputRow newRow;
     private int countdown = 1;
-    private int newAnswerSetCountdown = 0;
-    private boolean first = true;
     private Flyweight imageCreator = new Flyweight();
 
     @FXML
