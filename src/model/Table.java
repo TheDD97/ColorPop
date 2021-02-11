@@ -8,10 +8,8 @@ import java.util.Arrays;
 public class Table {
 
     private ArrayList<ArrayList<Cell>> table;
-    //private ArrayList<Boolean> emptyColumns;
 
     public Table() {
-        //emptyColumns = new ArrayList<Boolean>(Arrays.asList(false, false, false, false, false, false, false, false));
         table = new ArrayList<ArrayList<Cell>>();
         for (int r = 0; r < 7; r++) {
             ArrayList<Cell> tmp = new ArrayList<Cell>();
@@ -52,15 +50,6 @@ public class Table {
     }
 
     public void fixTable() {
-      /*  boolean realignColumn = false;
-        int startAlign;
-        for (Cell c : table.get(table.size() - 1)) {
-            if (c.isGreyEmpty()) {
-                emptyColumns.set(c.getColumn(), true);
-                realignColumn = true;
-            }
-        }
-      */
         for (int i = table.size() - 2; i >= 0; i--) {
             for (int j = 0; j < table.get(i).size(); j++) {
                 int lastGreyEmptyOnColumn = -1;
@@ -74,60 +63,73 @@ public class Table {
                     table.get(lastGreyEmptyOnColumn).set(j, new Cell(lastGreyEmptyOnColumn, j, table.get(i).get(j).getColor(), table.get(i).get(j).getType()));
                     clearCell(i, j);
                 }
-
             }
         }
-        /*
-        boolean shiftDx = true;
-        if (realignColumn) {
-            for (int i = 0; i <= emptyColumns.size() / 2+1; ++i) {
-                if (emptyColumns.get(i)) {
-                    shiftDx = false;
-                    break;
-                }
-            }
-            int direction;
-            if (shiftDx) {
-                direction = 1;
-                startAlign = 0;
-            } else {
-                direction = -1;
-                startAlign = 7;
-            }
-            System.out.println("direction " + direction + " start: " + startAlign);
-            realignColumn(startAlign, direction);
-        }*/
+        shiftSx();
+        shiftDx();
 
-
-        /*
-
-           INSERISCI IL CODICE PER IL RIALLINEAMENTO DELLA MATRICE QUI
-
-
-         */
 
 
 
     }
 
-  /*  public void realignColumn(int columnIndex, int direction) {
-        if ((columnIndex < 7 && direction == 1) || (columnIndex > 0 && direction == -1)) {
-            System.out.println(columnIndex);
-            if (emptyColumns.get(columnIndex + direction)) {
-                for (int i = 0; i < table.size(); ++i) {
-                    table.get(i).set(columnIndex + direction, table.get(i).get(columnIndex));
-                    clearCell(i, columnIndex);
-                }
-                emptyColumns.set(columnIndex + direction, false);
-                emptyColumns.set(columnIndex, true);
+    public void shiftSx() {
+        int halfColumn=table.get(0).size()/2;
+        ArrayList<Integer> cellGreyEmpty=new ArrayList<Integer>();
+        for(int i=0; i<halfColumn; i++) {
+            if(table.get(table.size()-1).get(i).isGreyEmpty()) {
+                cellGreyEmpty.add(i);
             }
-            realignColumn(columnIndex + direction, direction);
         }
+        for(int i=halfColumn-1; i>0;i--) {
+            if(cellGreyEmpty.contains(i) && !cellGreyEmpty.contains(i-1)) {
+                for(int j=0; j<table.size(); j++) {
+                    table.get(j).set(i, new Cell(j,i,table.get(j).get(i-1).getColor(), table.get(j).get(i-1).getType()));
+                    clearCell(j,i-1);
+                }
+                cellGreyEmpty.remove(cellGreyEmpty.size()-1);
+                cellGreyEmpty.add(i-1);
+            }
+        }
+    }
 
-    }*/
+
+    public void shiftDx() {
+        int halfColumn=table.get(0).size()/2;
+        ArrayList<Integer> cellGreyEmpty=new ArrayList<Integer>();
+        for(int i=halfColumn; i<table.get(0).size(); i++) {
+            if(table.get(table.size()-1).get(i).isGreyEmpty()) {
+                cellGreyEmpty.add(i);
+            }
+        }
+        for(int i=halfColumn; i<=table.get(0).size()-2;i++) {
+            if(cellGreyEmpty.contains(i) && !cellGreyEmpty.contains(i+1)) {
+                for(int j=0; j<table.size(); j++) {
+                    table.get(j).set(i, new Cell(j,i,table.get(j).get(i+1).getColor(), table.get(j).get(i+1).getType()));
+                    clearCell(j,i+1);
+                }
+                cellGreyEmpty.remove(cellGreyEmpty.size()-1);
+                cellGreyEmpty.add(i+1);
+            }
+        }
+    }
 
     public void clearCell(int r, int c) {
         table.get(r).set(c, new Cell(r, c, new SymbolicConstant("grey"), new SymbolicConstant("empty")));
     }
 
+    public boolean insertInputRow(InputRow ir) {
+        for(int i=0; i<table.get(0).size(); i++)
+            if(!table.get(0).get(i).isGreyEmpty())
+                return false;
+        table.remove(0);
+        for(int i=0; i<table.size()-1;i++)
+            for(int e=0; e<table.get(i).size(); e++) {
+                table.get(i).get(e).setRow(table.get(i).get(e).getRow()-1);
+            }
+        table.add(new ArrayList<Cell>());
+        for(int i=0; i<table.get(0).size(); i++)
+            table.get(table.size()-1).add(ir.getCell(i));
+        return true;
+    }
 }
