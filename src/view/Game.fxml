@@ -31,6 +31,7 @@
                         </Label>
                      </children>
                   </HBox>
+                  <Button mnemonicParsing="false" onAction="#pause" text="Pause" />
                </children>
                <BorderPane.margin>
                   <Insets top="10.0" />
