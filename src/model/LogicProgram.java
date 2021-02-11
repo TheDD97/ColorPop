@@ -28,10 +28,13 @@ public class LogicProgram {
             ASPMapper.getInstance().registerClass(Select.class);
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        } OptionDescriptor option = new OptionDescriptor("--printonlyoptimum ");
+        handler.addOption(option);
     }
 
-    public void addFacts(Table t,Timer ti) {
+    public void addFacts(Table t,Timer ti, boolean first) {
+        if(!first)
+            handler.removeProgram(facts);
         facts = new ASPInputProgram();
         facts.addFilesPath(encodingResource);
         try {
@@ -52,8 +55,7 @@ public class LogicProgram {
                 }
             }
         }
-        OptionDescriptor option = new OptionDescriptor("--printonlyoptimum");
-        handler.addOption(option);
+
         handler.addProgram(facts);
     }
 

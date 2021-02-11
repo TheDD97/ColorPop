@@ -37,7 +37,7 @@ public class GameController {
     private InputRow newRow;
     private int countdown = 1;
     private Flyweight imageCreator = new Flyweight();
-
+    private boolean first=true;
     @FXML
     public void initialize() {
         startAlert = new Alert(Alert.AlertType.INFORMATION);
@@ -89,7 +89,8 @@ public class GameController {
                     if (!timeIsOut && time < 50) {//line 77 is just for try
                         //timeIsOut = true;
                         if (countdown % 2 == 0) {
-                            logicProgram.addFacts(mainTable, timer);
+                            logicProgram.addFacts(mainTable, timer, first);
+                            first=false;
                             ArrayList<Cell> answerset = logicProgram.getAnswerSet(mainTable);
                             Integer pt = Integer.parseInt(points.getText());
                             for (Cell c : answerset) {
