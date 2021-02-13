@@ -28,12 +28,13 @@ public class LogicProgram {
             ASPMapper.getInstance().registerClass(Select.class);
         } catch (Exception e) {
             e.printStackTrace();
-        } OptionDescriptor option = new OptionDescriptor("--printonlyoptimum ");
+        }
+        OptionDescriptor option = new OptionDescriptor("--printonlyoptimum ");
         handler.addOption(option);
     }
 
-    public void addFacts(Table t,Timer ti, boolean first) {
-        if(!first)
+    public void addFacts(Table t, Timer ti, boolean first) {
+        if (!first)
             handler.removeProgram(facts);
         facts = new ASPInputProgram();
         facts.addFilesPath(encodingResource);
@@ -76,6 +77,7 @@ public class LogicProgram {
                         if (obj instanceof Select) {
                             select = (Select) obj;
                             adjacent.add(new Cell(select.getRow(), select.getColumn(), table.getCell(select.getRow(), select.getColumn()).getColor(), table.getCell(select.getRow(), select.getColumn()).getType()));
+                          //  System.out.println("\n" + adjacent.get(0).getColor() + "   " + adjacent.get(0).getType());
                             for (Object o : a.getAtoms())
                                 if (o instanceof Adjacent) {
                                     Adjacent ad = (Adjacent) o;
@@ -100,7 +102,9 @@ public class LogicProgram {
                 }
                 round++;
             } else break;
-        }
+        }/*
+        for (int i = 1; i < adjacent.size(); i++)
+            System.out.println(adjacent.get(i));*/
         return adjacent;
     }
 }

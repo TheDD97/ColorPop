@@ -37,7 +37,8 @@ public class GameController {
     private InputRow newRow;
     private int countdown = 1;
     private Flyweight imageCreator = new Flyweight();
-    private boolean first=true;
+    private boolean first = true;
+
     @FXML
     public void initialize() {
         startAlert = new Alert(Alert.AlertType.INFORMATION);
@@ -85,34 +86,34 @@ public class GameController {
                         timeIsOut = true;
                     }
                     timer.setTime(time);
-                    graphicTimer.setText(Integer.toString(timer.getTime()));
-                    if (!timeIsOut && time < 50) {//line 77 is just for try
-                        //timeIsOut = true;
+                    if (!timeIsOut) {
                         if (countdown % 2 == 0) {
                             logicProgram.addFacts(mainTable, timer, first);
-                            first=false;
+                            if (first)
+                                first = false;
                             ArrayList<Cell> answerset = logicProgram.getAnswerSet(mainTable);
                             Integer pt = Integer.parseInt(points.getText());
                             for (Cell c : answerset) {
-                                if (c.getType().equals("treasure"))
+                                System.out.println(c.getColor()+"  "+c.getType());
+                                if (c.getType().toString().equals("treasure")) {
+                                    System.out.println("Tesoro aggiunto");
                                     pt += 58; //33 + 25
-                                else if (!c.getType().equals("time"))
+                                }
+                                else if (!c.getType().toString().equals("time"))
                                     pt += 33;
-                                else timer.setTime(time += 4);
+                                else {
+                                    timer.setTime(time += 5);
+                                    System.out.println("Time aggiunto "+(time+=5));
+                                }
                                 mainTable.clearCell(c.getRow(), c.getColumn());
                             }
                             points.setText(Integer.toString(pt));
                         }
+                        graphicTimer.setText(Integer.toString(timer.getTime()));
                         mainTable.fixTable();
                         if (countdown % 5 == 0) {
                             if (!mainTable.insertInputRow(newRow)) {
                                 timeIsOut = true;
-                                pauseAlert.setAlertType(Alert.AlertType.ERROR);
-                                pauseAlert.setTitle("ColorPop");
-                                pauseAlert.setHeaderText("Game-over!");
-                                pauseAlert.setTitle("Try again :(");
-                                pauseAlert.setContentText(null);
-                                pauseAlert.showAndWait();
                             } else {
                                 newRow = new InputRow();
                                 for (int i = 0; i < 8; i++) {
@@ -135,6 +136,15 @@ public class GameController {
                                 grid.add(imgv, j, i);
                             }
                         }
+
+                    }
+                    if (timeIsOut) {
+                        pauseAlert.setAlertType(Alert.AlertType.ERROR);
+                        pauseAlert.setTitle("ColorPop");
+                        pauseAlert.setHeaderText("Game-over!");
+                        pauseAlert.setTitle("Try again :(");
+                        pauseAlert.setContentText(null);
+                        pauseAlert.showAndWait();
                     }
                 }
             });

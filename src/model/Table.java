@@ -4,6 +4,7 @@ import it.unical.mat.embasp.languages.asp.SymbolicConstant;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class Table {
 
@@ -39,7 +40,7 @@ public class Table {
     public void print() {
         for (int i = 0; i < table.size(); i++) {
             for (int e = 0; e < table.get(i).size(); e++) {
-                System.out.print(table.get(i).get(e).getColor().toString() + " ");
+                System.out.print("[ " + table.get(i).get(e).getRow() + table.get(i).get(e).getColumn() + "] ");
             }
             System.out.println();
         }
@@ -67,50 +68,46 @@ public class Table {
         }
         shiftSx();
         shiftDx();
-
-
-
-
     }
 
     public void shiftSx() {
-        int halfColumn=table.get(0).size()/2;
-        ArrayList<Integer> cellGreyEmpty=new ArrayList<Integer>();
-        for(int i=0; i<halfColumn; i++) {
-            if(table.get(table.size()-1).get(i).isGreyEmpty()) {
-                cellGreyEmpty.add(i);
-            }
-        }
-        for(int i=halfColumn-1; i>0;i--) {
-            if(cellGreyEmpty.contains(i) && !cellGreyEmpty.contains(i-1)) {
-                for(int j=0; j<table.size(); j++) {
-                    table.get(j).set(i, new Cell(j,i,table.get(j).get(i-1).getColor(), table.get(j).get(i-1).getType()));
-                    clearCell(j,i-1);
+        int halfColumn = table.get(0).size() / 2;
+        boolean swap = false;
+
+        for (int i = halfColumn; i >= 0; i--) {
+            int count = 0;
+            for (int k = i - 1; k >= 0; k--)
+                if (table.get(table.size() - 1).get(k).isGreyEmpty()) {
+                    swap = true;
+                    count++;
+                } else break;
+            if (swap && count > 0 && (i - count - 1 >= 0)) {
+                for (int row = 0; row < table.size(); row++) {
+                    table.get(row).set(i - 1, new Cell(row, i - 1, table.get(row).get(i - count - 1).getColor(), table.get(row).get(i - count - 1).getType()));
+                    clearCell(row, i - count - 1);
                 }
-                cellGreyEmpty.remove(cellGreyEmpty.size()-1);
-                cellGreyEmpty.add(i-1);
             }
+            swap = false;
         }
     }
 
-
     public void shiftDx() {
-        int halfColumn=table.get(0).size()/2;
-        ArrayList<Integer> cellGreyEmpty=new ArrayList<Integer>();
-        for(int i=halfColumn; i<table.get(0).size(); i++) {
-            if(table.get(table.size()-1).get(i).isGreyEmpty()) {
-                cellGreyEmpty.add(i);
-            }
-        }
-        for(int i=halfColumn; i<=table.get(0).size()-2;i++) {
-            if(cellGreyEmpty.contains(i) && !cellGreyEmpty.contains(i+1)) {
-                for(int j=0; j<table.size(); j++) {
-                    table.get(j).set(i, new Cell(j,i,table.get(j).get(i+1).getColor(), table.get(j).get(i+1).getType()));
-                    clearCell(j,i+1);
+        int halfColumn = table.get(0).size() / 2;
+        boolean swap = false;
+        for (int i = halfColumn - 1; i < table.get(0).size(); i++) {
+            int count = 0;
+            for (int k = i + 1; k < table.get(0).size(); k++)
+                if (table.get(table.size() - 1).get(k).isGreyEmpty()) {
+                    swap = true;
+                    count++;
+                } else break;
+            if (swap && count > 0 && (i + count + 1 <= table.get(0).size() - 1)) {
+                for (int row = 0; row < table.size(); row++) {
+                    table.get(row).set(i + 1, new Cell(row, i + 1, table.get(row).get(i + count + 1).getColor(), table.get(row).get(i + count + 1).getType()));
+                    clearCell(row, i + count + 1);
                 }
-                cellGreyEmpty.remove(cellGreyEmpty.size()-1);
-                cellGreyEmpty.add(i+1);
             }
+            swap = false;
         }
     }
 
@@ -119,17 +116,20 @@ public class Table {
     }
 
     public boolean insertInputRow(InputRow ir) {
-        for(int i=0; i<table.get(0).size(); i++)
-            if(!table.get(0).get(i).isGreyEmpty())
+        for (int i = 0; i < table.get(0).size(); i++)
+            if (!table.get(0).get(i).isGreyEmpty())
                 return false;
         table.remove(0);
-        for(int i=0; i<table.size()-1;i++)
-            for(int e=0; e<table.get(i).size(); e++) {
-                table.get(i).get(e).setRow(table.get(i).get(e).getRow()-1);
+        for (int i = 0; i < table.size(); i++)
+            for (int e = 0; e < table.get(i).size(); e++) {
+                int r = table.get(i).get(e).getRow();
+                table.get(i).get(e).setRow(r - 1);
             }
         table.add(new ArrayList<Cell>());
-        for(int i=0; i<table.get(0).size(); i++)
-            table.get(table.size()-1).add(ir.getCell(i));
+        for (int i = 0; i < table.get(0).size(); i++) {
+            ir.getCell(i).setRow(table.size() - 1);
+            table.get(table.size() - 1).add(ir.getCell(i));
+        }
         return true;
     }
 }
