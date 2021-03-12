@@ -12,60 +12,82 @@ type(vertical).
 type(bidirectional).
 type(time).
 
+
+cellEmpty(R,C):-cell(R,C,grey,empty).
+
 select(R,C)|unselect(R,C):-cell(R,C,_,_).
 :-#count{R,C:select(R,C)}>1.
 :-select(R,C), cell(R,C,_,empty), numAdiacenti(R,C,X), X<3.
+:-select(R,C), posSpeciali(R,C), numAdiacenti(R,C,K), K>1.
+
+:-select(R,C), posSpec(R,C), #max{L:numAdiacenti(R,C,L)}=K, K<=1.
 
 numCellCol(C,N):-column(C), #count{R:cell(R,C,G,V)}=J, #count{R:cell(R,C,grey,empty)}=K, N=J-K.
 maxCellCol(M):-#max{N:numCellCol(_,N)}=M.
 
+cellEmpty(R,C):-cell(R,C,grey,empty).
+
 posSpeciali(R,C):-cell(R,C,grey,time).
 posSpeciali(R,C):-cell(R,C,grey,treasure).
 
-adjacent(R,C,R,C1):-cell(R,C,CO,_), cell(R,C1,CO,_), CO!=grey, X=C-C1, &abs(X;Y), Y=1,C!=C1.
-adjacent(R,C,R1,C):-cell(R,C,CO,_), cell(R1,C,CO,_), CO!=grey, X=R-R1, &abs(X;Y), Y=1, R!=R1.
-adjacent(R,C,R2,C2):-adjacent(R,C,R1,C1),adjacent(R1,C1,R2,C2).
+%posSpec memorizza le posizione per il constraint a valore 6.
 
-numAd(R,C,X):-#count{R1,C1:adjacent(R,C,R1,C1)}=X, row(R), column(C).
+posSpec(R,C):-posBid(R,C).
+posSpec(R,C):-posOriz(R,C).
+posSpec(R,C):-posVert(R,C).
+posSpec(R,C):-posbombCol(R,C).
+posSpec(R,C):-posbombGrigia(R,C).
 
-numAdiacenti(R,C,N):-numAd(R,C,M), posSpeciali(R,C1), X=C-C1, &abs(X;Y), Y=1,C!=C1, N=M+1,M>2.
-numAdiacenti(R,C,N):-numAd(R,C,M), posSpeciali(R1,C), X=R-R1, &abs(X;Y), Y=1,R!=R1, N=M+1,M>2.
-numAdiacenti(R,C,N):-numAd(R,C,N).
+ad(R,C,R,C1):-cell(R,C,CO,_), cell(R,C1,CO,_),CO!=grey, X=C-C1, &abs(X;Y), Y=1,C!=C1.
+ad(R,C,R1,C):-cell(R,C,CO,_), cell(R1,C,CO,_),CO!=grey, X=R-R1, &abs(X;Y), Y=1, R!=R1.
+ad(R,C,R,C1):-cell(R,C,CO,_), cell(R,C1,_,_),posSpeciali(R,C1), X=C-C1, &abs(X;Y), Y=1,C!=C1.
+ad(R,C,R1,C):-cell(R,C,CO,_), cell(R1,C,_,_),posSpeciali(R1,C), X=R-R1, &abs(X;Y), Y=1, R!=R1.
+ad(R,C,R2,C2):-ad(R,C,R1,C1),ad(R1,C1,R2,C2).
+
+adjacent(A,B,C,D):-ad(A,B,C,D).
+
+numAdiacenti(R,C,X):-#count{R1,C1:ad(R,C,R1,C1), not posSpeciali(R1,C1)}=X, row(R), column(C).
 
 maxAd(M):-#max{N:numAdiacenti(_,_,N)}=M.
 
 posbombGrigia(X,Y):-cell(X,Y,grey,bomb).
 
-adbomb(X,Y,X,Y1):-posbombGrigia(X,Y), cell(X,Y1,G,_), K=Y-Y1, &abs(K;J), J<3, Y!=Y1, G!=grey.
-adbomb(X,Y,X1,Y):-posbombGrigia(X,Y), cell(X1,Y,G,_), K=X-X1, &abs(K;J), J<3, X!=X1, G!=grey.
-adbomb(X,Y,X1,Y1):-posbombGrigia(X,Y), cell(X1,Y1,G,_), J=X1-X, J1=Y1-Y, &abs(J;V), V=1,  &abs(J1;V1), V1=1,G!=grey.
-
+adbomb(X,Y,X,Y1):-posbombGrigia(X,Y), cell(X,Y1,_,_), not cellEmpty(X,Y1), K=Y-Y1, &abs(K;J), J<3, Y!=Y1.
+adbomb(X,Y,X1,Y):-posbombGrigia(X,Y), cell(X1,Y,_,_), not cellEmpty(X1,Y), K=X-X1, &abs(K;J), J<3, X!=X1.
+adbomb(X,Y,X1,Y1):-posbombGrigia(X,Y), cell(X1,Y1,_,_), not cellEmpty(X1,Y1), J=X1-X, J1=Y1-Y, &abs(J;V), V=1,  &abs(J1;V1), V1=1.
+adjacent(A,B,C,D):-adbomb(A,B,C,D).
 numAdiacenti(R,C,N):-posbombGrigia(R,C), #count{X,Y:adbomb(R,C,X,Y), cell(X,Y,_,_)}=N.
 
 posbombCol(R,C):-cell(R,C,G,bomb), G!=grey.
-adbomb(R,C,R1,C1):-posbombCol(R,C), cell(R,C,COL,_), cell(R1,C1,COL,_), R!=R1.
-adbomb(R,C,R1,C1):-posbombCol(R,C), cell(R,C,COL,_), cell(R1,C1,COL,_), C!=C1.
-numAdiacenti(R,C,N):-posbombCol(R,C), #count{R1,C1:adbomb(R,C,R1,C1),cell(R1,C1,_,T),T=empty}=N.
+adbombCol(R,C,R1,C1):-posbombCol(R,C), cell(R,C,COL,_), cell(R1,C1,COL,_), R!=R1.
+adbombCol(R,C,R1,C1):-posbombCol(R,C), cell(R,C,COL,_), cell(R1,C1,COL,_), C!=C1.
+adjacent(A,B,C,D):-adbombCol(A,B,C,D).
+numAdiacenti(R,C,N):-posbombCol(R,C), cell(R,C,COL,_), #count{R1,C1:cell(R1,C1,COL,_)}=N.
 
 posOriz(R,C):-cell(R,C,_,horizzontal).
-adhorizzontal(R,C,R,C1):-posOriz(R,C), cell(R,C1,_,_), C1!=C.
-numAdiacenti(R,C,N):-posOriz(R,C), #count{C1:adhorizzontal(R,C,R,C1), cell(R,C1,_,T),T=empty}=N.
+adhorizzontal(R,C,R,C1):-posOriz(R,C), cell(R,C1,_,_),not cellEmpty(R,C1), C1!=C.
+adjacent(A,B,C,D):-adhorizzontal(A,B,C,D).
+numAdiacenti(R,C,N):-posOriz(R,C), #count{C1:adhorizzontal(R,C,R,C1), cell(R,C1,COL,_),COL!=grey}=N.
 
 posVert(R,C):-cell(R,C,_,vertical).
-advertical(R,C,R1,C):-posVert(R,C), cell(R1,C,_,_), R1!=R.
-numAdiacenti(R,C,N):-posVert(R,C), #count{R1:advertical(R,C,R1,C), cell(R1,C,_,T),T=empty}=N.
+advertical(R,C,R1,C):-posVert(R,C), cell(R1,C,_,_), not cellEmpty(R1,C),R1!=R.
+adjacent(A,B,C,D):-advertical(A,B,C,D).
+numAdiacenti(R,C,N):-posVert(R,C), #count{R1:advertical(R,C,R1,C), cell(R1,C,COL,_),COL!=grey}=N.
 
 posBid(R,C):-cell(R,C,_,bidirectional).
-adbidirectional(R,C,R,C1):-posBid(R,C), cell(R,C1,_,_), C1!=C.
-adbidirectional(R,C,R1,C):-posBid(R,C), cell(R1,C,_,_), R1!=R.
+adbidirectional(R,C,R,C1):-posBid(R,C), cell(R,C1,_,_), not cellEmpty(R,C1), C1!=C.
+adbidirectional(R,C,R1,C):-posBid(R,C), cell(R1,C,_,_), not cellEmpty(R1,C), R1!=R.
+adjacent(A,B,C,D):-adbidirectional(A,B,C,D).
 numAdiacenti(R,C,N):-posBid(R,C), #count{C1,R1:adbidirectional(R,C,R1,C1),cell(R1,C1,_,T),T=empty}=N.
-
-:~unselect(R,C), numAdiacenti(R,C,N), maxAd(N). [N@2,R,C]
-
-:~#count{R,C:unselect(R,C), numCellCol(C,N), maxCellCol(N)}=K. [K@3]
 
 :~unselect(R,C), cell(R,C,grey,treasure), maxAd(M), M<3. [1@1]
 
+:~unselect(R,C), numAdiacenti(R,C,N), maxAd(N). [N@2,R,C]
+
+:~#count{R,C:unselect(R,C), numCellCol(C,N), maxCellCol(N), N>5}=K. [K@3]
+
 :~unselect(R,C), cell(R,C,grey,time), timer(T), T<15. [1@4]
 
-:~#count{R,C:select(R,C)}!=1. [1@5]
+adMax(R,C):-maxAd(N), numAdiacenti(R,C,N).
+
+:~unselect(R,C), adMax(R,C), posSpec(R,C). [1@5]

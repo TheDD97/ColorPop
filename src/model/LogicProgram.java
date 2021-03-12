@@ -77,7 +77,7 @@ public class LogicProgram {
                         if (obj instanceof Select) {
                             select = (Select) obj;
                             adjacent.add(new Cell(select.getRow(), select.getColumn(), table.getCell(select.getRow(), select.getColumn()).getColor(), table.getCell(select.getRow(), select.getColumn()).getType()));
-                          //  System.out.println("\n" + adjacent.get(0).getColor() + "   " + adjacent.get(0).getType());
+                            //  System.out.println("\n" + adjacent.get(0).getColor() + "   " + adjacent.get(0).getType());
                             for (Object o : a.getAtoms())
                                 if (o instanceof Adjacent) {
                                     Adjacent ad = (Adjacent) o;
@@ -85,12 +85,6 @@ public class LogicProgram {
                                         SymbolicConstant color = table.getCell(ad.getRow1(), ad.getColumn1()).getColor();
                                         SymbolicConstant type = table.getCell(ad.getRow1(), ad.getColumn1()).getType();
                                         Cell adj = new Cell(ad.getRow1(), ad.getColumn1(), color, type);
-                                        if (!adjacent.contains(adj))
-                                            adjacent.add(adj);
-                                    } else if (ad.getRow1() == select.getRow() && ad.getColumn1() == select.getColumn()) {
-                                        SymbolicConstant color = table.getCell(ad.getRow(), ad.getColumn()).getColor();
-                                        SymbolicConstant type = table.getCell(ad.getRow(), ad.getColumn()).getType();
-                                        Cell adj = new Cell(ad.getRow(), ad.getColumn(), color, type);
                                         if (!adjacent.contains(adj))
                                             adjacent.add(adj);
                                     }

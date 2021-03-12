@@ -81,7 +81,7 @@ public class GameController {
             Platform.runLater(() -> {
                 if (!pause) {
                     int time = timer.getTime();
-                    time--;
+
                     if (time == 0) {
                         timeIsOut = true;
                     }
@@ -94,22 +94,20 @@ public class GameController {
                             ArrayList<Cell> answerset = logicProgram.getAnswerSet(mainTable);
                             Integer pt = Integer.parseInt(points.getText());
                             for (Cell c : answerset) {
-                                System.out.println(c.getColor()+"  "+c.getType());
                                 if (c.getType().toString().equals("treasure")) {
-                                    System.out.println("Tesoro aggiunto");
+                                    //Tesoro aggiunto
                                     pt += 58; //33 + 25
-                                }
-                                else if (!c.getType().toString().equals("time"))
+                                } else if (!c.getType().toString().equals("time"))
                                     pt += 33;
                                 else {
-                                    timer.setTime(time += 5);
-                                    System.out.println("Time aggiunto "+(time+=5));
+                                    time += 6;
+                                    //Time aggiunto
                                 }
                                 mainTable.clearCell(c.getRow(), c.getColumn());
                             }
                             points.setText(Integer.toString(pt));
                         }
-                        graphicTimer.setText(Integer.toString(timer.getTime()));
+
                         mainTable.fixTable();
                         if (countdown % 5 == 0) {
                             if (!mainTable.insertInputRow(newRow)) {
@@ -126,7 +124,6 @@ public class GameController {
                             }
                         }
 
-                        //mainTable.print();
                         for (int i = 0; i < 10; i++) {
                             for (int j = 0; j < 8; j++) {
                                 ImageView imgv = new ImageView(imageCreator.getImage(mainTable.getCell(i, j).getColor().toString() + mainTable.getCell(i, j).getType().toString()));
@@ -136,7 +133,9 @@ public class GameController {
                                 grid.add(imgv, j, i);
                             }
                         }
-
+                        time--;
+                        timer.setTime(time);
+                        graphicTimer.setText(Integer.toString(timer.getTime()));
                     }
                     if (timeIsOut) {
                         pauseAlert.setAlertType(Alert.AlertType.ERROR);
@@ -146,6 +145,7 @@ public class GameController {
                         pauseAlert.setContentText(null);
                         pauseAlert.showAndWait();
                     }
+
                 }
             });
             try {

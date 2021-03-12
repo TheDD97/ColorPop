@@ -69,7 +69,7 @@ public class Cell {
         return this.row == c.row && this.column == c.column && this.color.toString().equals(c.color.toString()) && this.type.toString().equals(c.type.toString());
     }
 
-    public boolean isGreyEmpty(){
+    public boolean isGreyEmpty() {
         return color.toString().equals("grey") && type.toString().equals("empty");
     }
 }

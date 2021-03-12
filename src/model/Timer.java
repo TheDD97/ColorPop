@@ -9,15 +9,18 @@ public class Timer {
     @Param(0)
     private int time;
 
-	public Timer(int t) {
-		this.time=t;
-		}
+    public Timer(int t) {
+        this.time = t;
+    }
+
     public Timer() {
     }
-	public int getTime() {
-		return time;
-	}
-	public void setTime(int time) {
-		this.time = time;   
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
     }
 }
