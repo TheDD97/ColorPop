@@ -25,7 +25,7 @@ public class GameController {
 
     @FXML
     private GridPane newValues;
-    private String encodingResource = "encodings/prog.txt";
+    private String encodingResource = "encodings/intelligence.txt";
     private LogicProgram logicProgram;
     private Table mainTable;
     private Timer timer;
