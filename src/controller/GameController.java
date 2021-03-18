@@ -87,7 +87,7 @@ public class GameController {
                     }
                     timer.setTime(time);
                     if (!timeIsOut) {
-                        if (countdown % 2 == 0) {
+                        if (countdown % 3 == 0) {
                             logicProgram.addFacts(mainTable, timer, first);
                             if (first)
                                 first = false;

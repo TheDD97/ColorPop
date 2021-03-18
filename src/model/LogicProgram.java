@@ -77,7 +77,7 @@ public class LogicProgram {
                         if (obj instanceof Select) {
                             select = (Select) obj;
                             adjacent.add(new Cell(select.getRow(), select.getColumn(), table.getCell(select.getRow(), select.getColumn()).getColor(), table.getCell(select.getRow(), select.getColumn()).getType()));
-                            //  System.out.println("\n" + adjacent.get(0).getColor() + "   " + adjacent.get(0).getType());
+                            System.out.println("\n" + adjacent.get(0).getRow() + "   " + adjacent.get(0).getColumn() + "  " + adjacent.get(0).getColor() + "   " + adjacent.get(0).getType());
                             for (Object o : a.getAtoms())
                                 if (o instanceof Adjacent) {
                                     Adjacent ad = (Adjacent) o;
